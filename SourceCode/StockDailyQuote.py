@@ -359,6 +359,9 @@ def retriveAllStocks():
 # dayCount: 載入數量
 def loadQuotes(dayOffset, dayCount):
     path = '../DailyQuote/'
+    if os.path.isdir(path) is False:
+        return None
+
     files = os.listdir(path)
     files.sort(reverse=True)
 
@@ -378,8 +381,11 @@ def loadQuotes(dayOffset, dayCount):
 def isMarketOpen():
     stockNos = [1301, 1326, 2317, 2330, 2882]
 
-    prevDailyQuote = loadQuotes(0, 1)[0]
+    prevDailyQuotes = loadQuotes(0, 1)
+    if prevDailyQuotes is None:
+        return True
 
+    prevDailyQuote = prevDailyQuotes[0]
     for i in stockNos:
         quote = DailyQuote(i)
         quote.retriveQuote()
