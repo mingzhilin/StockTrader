@@ -401,7 +401,7 @@ def retriveAllStocks():
 
     # 輸出檔案
     now = date.today()
-    currMonth = str(now.year) + '-' + str(now.month)
+    currMonth = '{y:04d}-{m:02d}'.format(y=now.year, m=now.month)
     filePath = path + '/RevenueQuote(' + currMonth + ').pkl'
     with open(filePath, 'wb') as outputFile:
         pickle.dump(quotes, outputFile, protocol=pickle.HIGHEST_PROTOCOL)
@@ -424,6 +424,9 @@ def loadQuotes(monthOffset, monthCount):
     path = '../RevenueQuote/'
     files = os.listdir(path)
     files.sort(reverse=True)
+
+    print(files)
+    exit()
 
     start = monthOffset
     stop = monthOffset + monthCount
