@@ -425,9 +425,6 @@ def loadQuotes(monthOffset, monthCount):
     files = os.listdir(path)
     files.sort(reverse=True)
 
-    print(files)
-    exit()
-
     start = monthOffset
     stop = monthOffset + monthCount
     if stop > len(files):
