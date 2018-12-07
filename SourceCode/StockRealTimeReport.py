@@ -1117,41 +1117,47 @@ def SaveFile2(filePath, quotes):
                 prevIndex1 = currIndex + 1
                 prevIndex2 = currIndex + 2
 
-                outputFile.write(str(quotes[stockNo].volumes[currIndex])+',')
-                outputFile.write(str(quotes[stockNo].volumes[0])+',')
-                #outputFile.write(str(quotes[stockNo].prices[currIndex])+',')
-
-                if prevIndex1 < len(quotes[stockNo].prices) and quotes[stockNo].prices[prevIndex1] > 0:
-                    curr = quotes[stockNo].prices[currIndex]
-                    prev = quotes[stockNo].prices[prevIndex1]
-                    changeRate = (curr - prev) / prev
-                    outputFile.write('{0:.4f}'.format(changeRate)+',')
-                else:
+                if quotes[stockNo].volumes is None or quotes[stockNo].prices is None:
                     outputFile.write('0,')
-
-                if currTime == 10 * 60 + 30:
                     outputFile.write('0,')
-                elif currTime == 10 * 60 + 35:
-                    curr = quotes[stockNo].volumes[currIndex]
-                    prev1 = quotes[stockNo].volumes[prevIndex1]
-                    if prev1 == 0:
-                        changeRate = 0
-                    else:
-                        changeRate = (curr - prev1) / prev1
-                    outputFile.write('{0:.4f}'.format(changeRate)+',')
+                    outputFile.write('0,')
+                    outputFile.write('0,')
                 else:
-                    if prevIndex2 < len(quotes[stockNo].volumes):
-                        curr = quotes[stockNo].volumes[currIndex]
-                        prev1 = quotes[stockNo].volumes[prevIndex1]
-                        prev2 = quotes[stockNo].volumes[prevIndex2]
-                        diff = prev1 - prev2
-                        if diff == 0:
-                            changeRate = 0
-                        else:
-                            changeRate = (curr - prev1) / diff
+                    outputFile.write(str(quotes[stockNo].volumes[currIndex])+',')
+                    outputFile.write(str(quotes[stockNo].volumes[0])+',')
+                    #outputFile.write(str(quotes[stockNo].prices[currIndex])+',')
+
+                    if prevIndex1 < len(quotes[stockNo].prices) and quotes[stockNo].prices[prevIndex1] > 0:
+                        curr = quotes[stockNo].prices[currIndex]
+                        prev = quotes[stockNo].prices[prevIndex1]
+                        changeRate = (curr - prev) / prev
                         outputFile.write('{0:.4f}'.format(changeRate)+',')
                     else:
                         outputFile.write('0,')
+
+                    if currTime == 10 * 60 + 30:
+                        outputFile.write('0,')
+                    elif currTime == 10 * 60 + 35:
+                        curr = quotes[stockNo].volumes[currIndex]
+                        prev1 = quotes[stockNo].volumes[prevIndex1]
+                        if prev1 == 0:
+                            changeRate = 0
+                        else:
+                            changeRate = (curr - prev1) / prev1
+                        outputFile.write('{0:.4f}'.format(changeRate)+',')
+                    else:
+                        if prevIndex2 < len(quotes[stockNo].volumes):
+                            curr = quotes[stockNo].volumes[currIndex]
+                            prev1 = quotes[stockNo].volumes[prevIndex1]
+                            prev2 = quotes[stockNo].volumes[prevIndex2]
+                            diff = prev1 - prev2
+                            if diff == 0:
+                                changeRate = 0
+                            else:
+                                changeRate = (curr - prev1) / diff
+                            outputFile.write('{0:.4f}'.format(changeRate)+',')
+                        else:
+                            outputFile.write('0,')
 
                 outputFile.write('\n')
                 currTime -= 5
@@ -1168,41 +1174,47 @@ def SaveFile2(filePath, quotes):
                 prevIndex1 = currIndex + 1
                 prevIndex2 = currIndex + 2
 
-                outputFile.write(str(quotes[stockNo].volumes[currIndex])+',')
-                outputFile.write(str(quotes[stockNo].volumes[0])+',')
-                #outputFile.write(str(quotes[stockNo].prices[currIndex])+',')
-
-                if prevIndex1 < len(quotes[stockNo].prices) and quotes[stockNo].prices[prevIndex1] > 0:
-                    curr = quotes[stockNo].prices[currIndex]
-                    prev = quotes[stockNo].prices[prevIndex1]
-                    changeRate = (curr - prev) / prev
-                    outputFile.write('{0:.4f}'.format(changeRate)+',')
-                else:
+                if quotes[stockNo].volumes is None or quotes[stockNo].prices is None:
                     outputFile.write('0,')
-
-                if currTime == 9 * 60:
                     outputFile.write('0,')
-                elif currTime == 9 * 60 + 1:
-                    curr = quotes[stockNo].volumes[currIndex]
-                    prev1 = quotes[stockNo].volumes[prevIndex1]
-                    if prev1 == 0:
-                        changeRate = 0
-                    else:
-                        changeRate = (curr - prev1) / prev1
-                    outputFile.write('{0:.4f}'.format(changeRate)+',')
+                    outputFile.write('0,')
+                    outputFile.write('0,')
                 else:
-                    if prevIndex2 < len(quotes[stockNo].volumes):
-                        curr = quotes[stockNo].volumes[currIndex]
-                        prev1 = quotes[stockNo].volumes[prevIndex1]
-                        prev2 = quotes[stockNo].volumes[prevIndex2]
-                        diff = prev1 - prev2
-                        if diff == 0:
-                            changeRate = 0
-                        else:
-                            changeRate = (curr - prev1) / diff
+                    outputFile.write(str(quotes[stockNo].volumes[currIndex])+',')
+                    outputFile.write(str(quotes[stockNo].volumes[0])+',')
+                    #outputFile.write(str(quotes[stockNo].prices[currIndex])+',')
+
+                    if prevIndex1 < len(quotes[stockNo].prices) and quotes[stockNo].prices[prevIndex1] > 0:
+                        curr = quotes[stockNo].prices[currIndex]
+                        prev = quotes[stockNo].prices[prevIndex1]
+                        changeRate = (curr - prev) / prev
                         outputFile.write('{0:.4f}'.format(changeRate)+',')
                     else:
                         outputFile.write('0,')
+
+                    if currTime == 9 * 60:
+                        outputFile.write('0,')
+                    elif currTime == 9 * 60 + 1:
+                        curr = quotes[stockNo].volumes[currIndex]
+                        prev1 = quotes[stockNo].volumes[prevIndex1]
+                        if prev1 == 0:
+                            changeRate = 0
+                        else:
+                            changeRate = (curr - prev1) / prev1
+                        outputFile.write('{0:.4f}'.format(changeRate)+',')
+                    else:
+                        if prevIndex2 < len(quotes[stockNo].volumes):
+                            curr = quotes[stockNo].volumes[currIndex]
+                            prev1 = quotes[stockNo].volumes[prevIndex1]
+                            prev2 = quotes[stockNo].volumes[prevIndex2]
+                            diff = prev1 - prev2
+                            if diff == 0:
+                                changeRate = 0
+                            else:
+                                changeRate = (curr - prev1) / diff
+                            outputFile.write('{0:.4f}'.format(changeRate)+',')
+                        else:
+                            outputFile.write('0,')
 
                 outputFile.write('\n')
                 currTime -= 1
@@ -1257,26 +1269,32 @@ def SaveFile3(filePath, quotes):
                 minute = currTime % 60
                 outputFile.write('{h:02d}:{m:02d}:00,'.format(h=hour, m=minute))
 
-                currIndex = (13 * 60 + 30 - currTime) // 5
-                outputFile.write(str(quotes[stockNo].volumes3[currIndex])+',')
-                outputFile.write(str(quotes[stockNo].volumes3[0])+',')
-                #outputFile.write(str(quotes[stockNo].prices[currIndex])+',')
+                if quotes[stockNo].volumes3 is None or quotes[stockNo].prices3 is None:
+                    outputFile.write('0,')
+                    outputFile.write('0,')
+                    outputFile.write('0,')
+                    outputFile.write('0,')
+                else:
+                    currIndex = (13 * 60 + 30 - currTime) // 5
+                    outputFile.write(str(quotes[stockNo].volumes3[currIndex])+',')
+                    outputFile.write(str(quotes[stockNo].volumes3[0])+',')
+                    #outputFile.write(str(quotes[stockNo].prices[currIndex])+',')
 
-                prevIndex = currIndex + 1
-                if prevIndex < len(quotes[stockNo].prices3) and quotes[stockNo].prices3[prevIndex] > 0:
-                    curr = quotes[stockNo].prices3[currIndex]
-                    prev = quotes[stockNo].prices3[prevIndex]
-                    changeRate = (curr - prev) / prev
-                    outputFile.write('{0:.4f}'.format(changeRate)+',')
-                else:
-                    outputFile.write('0,')
-                if prevIndex < len(quotes[stockNo].volumes3) and quotes[stockNo].volumes3[prevIndex] > 0:
-                    curr = quotes[stockNo].volumes3[currIndex]
-                    prev = quotes[stockNo].volumes3[prevIndex]
-                    changeRate = (curr - prev) / prev
-                    outputFile.write('{0:.4f}'.format(changeRate)+',')
-                else:
-                    outputFile.write('0,')
+                    prevIndex = currIndex + 1
+                    if prevIndex < len(quotes[stockNo].prices3) and quotes[stockNo].prices3[prevIndex] > 0:
+                        curr = quotes[stockNo].prices3[currIndex]
+                        prev = quotes[stockNo].prices3[prevIndex]
+                        changeRate = (curr - prev) / prev
+                        outputFile.write('{0:.4f}'.format(changeRate)+',')
+                    else:
+                        outputFile.write('0,')
+                    if prevIndex < len(quotes[stockNo].volumes3) and quotes[stockNo].volumes3[prevIndex] > 0:
+                        curr = quotes[stockNo].volumes3[currIndex]
+                        prev = quotes[stockNo].volumes3[prevIndex]
+                        changeRate = (curr - prev) / prev
+                        outputFile.write('{0:.4f}'.format(changeRate)+',')
+                    else:
+                        outputFile.write('0,')
 
                 outputFile.write('\n')
                 currTime -= 5
@@ -1322,6 +1340,9 @@ def SaveFile4(filePath, quotes):
 
         for stockNo in range(1000, 10000):
             if quotes.get(stockNo) is None:
+                continue
+
+            if quotes[stockNo].volumes3 is None or quotes[stockNo].prices3 is None:
                 continue
 
             currTime = 13 * 60 + 30
@@ -1398,57 +1419,6 @@ def SaveFile4(filePath, quotes):
                     outputFile.write('\n')
 
                 currTime -= 1
-
-                """
-                outputFile.write(str(quotes[stockNo].stockNo)+',')
-                outputFile.write(quotes[stockNo].stockName+',')
-                hour = currTime // 60
-                minute = currTime % 60
-                outputFile.write('{h:02d}:{m:02d}:00,'.format(h=hour, m=minute))
-
-                currIndex = (13 * 60 + 30 - currTime)
-                prevIndex1 = currIndex + 1
-                prevIndex2 = currIndex + 2
-
-                outputFile.write(str(quotes[stockNo].volumes4[currIndex])+',')
-                outputFile.write(str(quotes[stockNo].volumes4[0])+',')
-                #outputFile.write(str(quotes[stockNo].prices[currIndex])+',')
-
-                if prevIndex1 < len(quotes[stockNo].prices4) and quotes[stockNo].prices4[prevIndex1] > 0:
-                    curr = quotes[stockNo].prices4[currIndex]
-                    prev = quotes[stockNo].prices4[prevIndex1]
-                    changeRate = (curr - prev) / prev
-                    outputFile.write('{0:.4f}'.format(changeRate)+',')
-                else:
-                    outputFile.write('0,')
-
-                if currTime == 9 * 60:
-                    outputFile.write('0,')
-                elif currTime == 9 * 60 + 1:
-                    curr = quotes[stockNo].volumes4[currIndex]
-                    prev1 = quotes[stockNo].volumes4[prevIndex1]
-                    if prev1 == 0:
-                        changeRate = 0
-                    else:
-                        changeRate = (curr - prev1) / prev1
-                    outputFile.write('{0:.4f}'.format(changeRate)+',')
-                else:
-                    if prevIndex2 < len(quotes[stockNo].volumes4):
-                        curr = quotes[stockNo].volumes4[currIndex]
-                        prev1 = quotes[stockNo].volumes4[prevIndex1]
-                        prev2 = quotes[stockNo].volumes4[prevIndex2]
-                        diff = prev1 - prev2
-                        if diff == 0:
-                            changeRate = 0
-                        else:
-                            changeRate = (curr - prev1) / diff
-                        outputFile.write('{0:.4f}'.format(changeRate)+',')
-                    else:
-                        outputFile.write('0,')
-
-                outputFile.write('\n')
-                currTime -= 1
-                """
 
 
 def retriveOneStock(stockNo):
