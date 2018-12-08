@@ -198,7 +198,6 @@ class RealTimeReport():
                 tokens = nodes[0].split(':')
             except:
                 break
-            print('tokens =', tokens)
 
             try:
                 hour = int(tokens[0])
