@@ -184,12 +184,10 @@ class RealTimeReport():
         return True
 
     def ParseForFile2(self, html):
-        nodes = html.xpath('//table[2]/tr[2]/td[1]/table[1]/tr/td/text() | \
-                            //table[2]/tr[2]/td[1]/table[1]/tr/td/font/text() | \
-                            //table[2]/tr[2]/td[1]/table[1]/tr/td/span/font/text()')
+        nodes = html.xpath('//tr/td/text() | //tr/td/font/text()')
         if not nodes:
             return False
-
+        nodes = nodes[17:]
         #print('nodes =', nodes)
 
         prices = []
@@ -200,6 +198,7 @@ class RealTimeReport():
                 tokens = nodes[0].split(':')
             except:
                 break
+            print('tokens =', tokens)
 
             try:
                 hour = int(tokens[0])
@@ -320,12 +319,10 @@ class RealTimeReport():
         self.prices = prices
 
     def ParseForFile3(self, html):
-        nodes = html.xpath('//table[2]/tr[2]/td[1]/table[1]/tr/td/text() | \
-                            //table[2]/tr[2]/td[1]/table[1]/tr/td/font/text() | \
-                            //table[2]/tr[2]/td[1]/table[1]/tr/td/span/font/text()')
+        nodes = html.xpath('//tr/td/text() | //tr/td/font/text()')
         if not nodes:
             return False
-
+        nodes = nodes[17:]
         #print('nodes =', nodes)
 
         prices = []
@@ -408,12 +405,10 @@ class RealTimeReport():
 
 
     def ParseForFile4(self, html):
-        nodes = html.xpath('//table[2]/tr[2]/td[1]/table[1]/tr/td/text() | \
-                            //table[2]/tr[2]/td[1]/table[1]/tr/td/font/text() | \
-                            //table[2]/tr[2]/td[1]/table[1]/tr/td/span/font/text()')
+        nodes = html.xpath('//tr/td/text() | //tr/td/font/text()')
         if not nodes:
             return False
-
+        nodes = nodes[17:]
         #print('nodes =', nodes)
 
         prices = []
@@ -1601,10 +1596,13 @@ def isMarketOpen():
     prevDailyQuote = StockDailyQuote.loadQuotes(0, 1)[0]
 
     for i in stockNos:
-        quote = DailyQuote(i)
-        quote.retriveQuote()
-        if quote.volume != prevDailyQuote[i].volume:
-            return True
+        try:
+            quote = DailyQuote(i)
+            quote.retriveQuote()
+            if quote.volume != prevDailyQuote[i].volume:
+                return True
+        except:
+            continue
 
     return False
 

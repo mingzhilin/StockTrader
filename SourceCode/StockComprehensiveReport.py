@@ -722,10 +722,13 @@ def IsMarketOpen():
     prevDailyQuote = StockDailyQuote.loadQuotes(0, 1)[0]
 
     for i in stockNos:
-        quote = DailyQuote(i)
-        quote.retriveQuote()
-        if quote.volume != prevDailyQuote[i].volume:
-            return True
+        try:
+            quote = DailyQuote(i)
+            quote.retriveQuote()
+            if quote.volume != prevDailyQuote[i].volume:
+                return True
+        except:
+            continue
 
     return False
 
