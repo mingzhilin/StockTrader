@@ -1315,7 +1315,7 @@ def getFilePath4():
     currTime2 = '{h:02d}.{m:02d}.{s:02d}'.format(h=hour, m=minute, s=second)
 
     # 輸出檔案
-    filePath = path + '/StockCumulativeVolumeReport1Min(' + currTime1 + '-' + currTime2 + ').csv'
+    filePath = path + '/StockRealTimeReport月K(' + currTime1 + '-' + currTime2 + ').csv'
 
     return filePath
 
@@ -1415,6 +1415,312 @@ def SaveFile4(filePath, quotes):
                 currTime -= 1
 
 
+def GetFilePath5():
+    # 檢查輸出路徑
+    path = '../StockRealTimeReport'
+    if os.path.exists(path) is False:
+        os.mkdir(path)
+
+    now = date.today()
+    year = now.year
+    month = now.month
+    day = now.day
+
+    now = datetime.now()
+    hour = now.hour
+    minute = now.minute
+    second = now.second
+
+    currTime1 = '{y:02d}.{m:02d}.{d:02d}'.format(y=year, m=month, d=day)
+    currTime2 = '{h:02d}.{m:02d}.{s:02d}'.format(h=hour, m=minute, s=second)
+
+    # 輸出檔案
+    filePath = path + '/StockRealTimeReport月K(' + currTime1 + '-' + currTime2 + ').csv'
+
+    return filePath
+
+
+def SaveFile5(filePath, quotes):
+    # 檢查是否有今日行情
+    if isMarketOpen():
+        dayOffset = 0
+        marketOpen = True
+    else:
+        dayOffset = 1
+        marketOpen = False
+
+    # 讀取歷史資料
+    #dailyQuotes = StockDailyQuote.loadQuotes(0, 70)
+    path = '../DailyQuote/'
+    if os.path.isdir(path) is False:
+        return None
+    files = os.listdir(path)
+    files.sort(reverse=True)
+
+    #print('files =', files)
+
+    monthIndex = -1
+    dayIndex = -1
+    filesPerMonth = {}
+    month = None
+    for fileName in files:
+        #print(fileName[11:18])
+        if fileName[11:18] != month:
+            month = fileName[11:18]
+            monthIndex += 1
+            dayIndex = 0
+            filesPerMonth[monthIndex] = {}
+        filesPerMonth[monthIndex][dayIndex] = fileName
+        dayIndex += 1
+
+        """
+        closePricesPerMonth = {}
+        openPricesPerMonth = {}
+        highPricesPerMonth = {}
+        lowPricesPerMonth = {}
+        with open(path + fileName, 'rb') as inputFile:
+            quote = pickle.load(inputFile)
+            closePricesPerMonth[monthIndex][dayIndex] = quote[].closePrice
+            openPricesPerMonth[monthIndex][dayIndex] = quote.openPrice
+            highPricesPerMonth[monthIndex][dayIndex] = quote.highPrice
+            lowPricesPerMonth[monthIndex][dayIndex] = quote.lowPrice
+        """
+
+    #print('filesPerMonth len =', len(filesPerMonth))
+    #print('filesPerMonth[17] len =', len(filesPerMonth[17]))
+    #print(filesPerMonth[17])
+
+    # 輸出檔案
+    with open(filePath, 'w', encoding='UTF-16') as outputFile:
+        outputFile.write('股票代號,')
+        outputFile.write('股票名稱,')
+        outputFile.write('前月開盤價,')
+        outputFile.write('前月最高價,')
+        outputFile.write('前月最低價,')
+        outputFile.write('前月收盤價,')
+        outputFile.write('上月開盤價,')
+        outputFile.write('上月最高價,')
+        outputFile.write('上月最低價,')
+        outputFile.write('上月收盤價,')
+        outputFile.write('本月開盤價,')
+        outputFile.write('本月最高價,')
+        outputFile.write('本月最低價,')
+        outputFile.write('本月收盤價,')
+        outputFile.write('本月累計量,')
+        outputFile.write('上月收量,')
+        outputFile.write('上月9月K,')
+        outputFile.write('上月9月D,')
+        outputFile.write('本月9月K,')
+        outputFile.write('本月9月D,')
+        outputFile.write('\n')
+        for stockNo in range(1000, 10000):
+            if quotes.get(stockNo) is None:
+                continue
+
+            """
+            # 最高價
+            highPrices = {}
+            highPrices['20d'] = searchHighPrice(stockNo, dayOffset, dailyQuotes, quotes[stockNo], 19)
+            highPrices['60d'] = searchHighPrice(stockNo, dayOffset, dailyQuotes, quotes[stockNo], 59)
+            if quotes[stockNo].highPrice > highPrices['20d']:
+                highPrices['20d'] = quotes[stockNo].highPrice
+            if quotes[stockNo].highPrice > highPrices['60d']:
+                highPrices['60d'] = quotes[stockNo].highPrice
+
+            # 最低價
+            lowPrices = {}
+            lowPrices['20d'] = searchLowPrice(stockNo, dayOffset, dailyQuotes, quotes[stockNo], 19)
+            lowPrices['60d'] = searchLowPrice(stockNo, dayOffset, dailyQuotes, quotes[stockNo], 59)
+            if quotes[stockNo].lowPrice < lowPrices['20d']:
+                lowPrices['20d'] = quotes[stockNo].lowPrice
+            if quotes[stockNo].lowPrice < lowPrices['60d']:
+                lowPrices['60d'] = quotes[stockNo].lowPrice
+
+            #print('dayOffset =', dayOffset)
+            #print('highPrices =', highPrices)
+            #print('lowPrices =', lowPrices)
+            #print('averagePrices =', averagePrices)
+            #print('averageVolumes =', averageVolumes)
+
+            # KD
+            (ks, ds) = calculateKD(stockNo, dayOffset, dailyQuotes, quotes[stockNo])
+
+            # 股票代號
+            outputFile.write(str(quotes[stockNo].stockNo)+',')
+
+            # 股票名稱
+            outputFile.write(quotes[stockNo].stockName+',')
+
+            # 前日開盤價
+            if dailyQuotes[dayOffset+1].get(stockNo) is None:
+                if dailyQuotes[dayOffset+2].get(stockNo) is None:
+                    outputFile.write(',')
+                else:
+                    outputFile.write(str(dailyQuotes[dayOffset+2][stockNo].closePrice)+',')
+            else:
+                outputFile.write(str(dailyQuotes[dayOffset+1][stockNo].openPrice)+',')
+
+            # 前日最高價
+            if dailyQuotes[dayOffset+1].get(stockNo) is None:
+                if dailyQuotes[dayOffset+2].get(stockNo) is None:
+                    outputFile.write(',')
+                else:
+                    outputFile.write(str(dailyQuotes[dayOffset+2][stockNo].closePrice)+',')
+            else:
+                outputFile.write(str(dailyQuotes[dayOffset+1][stockNo].highPrice)+',')
+
+            # 前日最低價
+            if dailyQuotes[dayOffset+1].get(stockNo) is None:
+                if dailyQuotes[dayOffset+2].get(stockNo) is None:
+                    outputFile.write(',')
+                else:
+                    outputFile.write(str(dailyQuotes[dayOffset+2][stockNo].closePrice)+',')
+            else:
+                outputFile.write(str(dailyQuotes[dayOffset+1][stockNo].lowPrice)+',')
+
+            # 前日收盤價
+            if dailyQuotes[dayOffset+1].get(stockNo) is None:
+                if dailyQuotes[dayOffset+2].get(stockNo) is None:
+                    outputFile.write(',')
+                else:
+                    outputFile.write(str(dailyQuotes[dayOffset+2][stockNo].closePrice)+',')
+            else:
+                outputFile.write(str(dailyQuotes[dayOffset+1][stockNo].closePrice)+',')
+
+            # 昨日開盤價
+            if dailyQuotes[dayOffset].get(stockNo) is None:
+                if dailyQuotes[dayOffset+1].get(stockNo) is None:
+                    outputFile.write(',')
+                else:
+                    outputFile.write(str(dailyQuotes[dayOffset+1][stockNo].closePrice)+',')
+            else:
+                outputFile.write(str(dailyQuotes[dayOffset][stockNo].openPrice)+',')
+
+            # 昨日最高價
+            if dailyQuotes[dayOffset].get(stockNo) is None:
+                if dailyQuotes[dayOffset+1].get(stockNo) is None:
+                    outputFile.write(',')
+                else:
+                    outputFile.write(str(dailyQuotes[dayOffset+1][stockNo].closePrice)+',')
+            else:
+                outputFile.write(str(dailyQuotes[dayOffset][stockNo].highPrice)+',')
+
+            # 昨日最低價
+            if dailyQuotes[dayOffset].get(stockNo) is None:
+                if dailyQuotes[dayOffset+1].get(stockNo) is None:
+                    outputFile.write(',')
+                else:
+                    outputFile.write(str(dailyQuotes[dayOffset+1][stockNo].closePrice)+',')
+            else:
+                outputFile.write(str(dailyQuotes[dayOffset][stockNo].lowPrice)+',')
+
+            # 昨日收盤價
+            if dailyQuotes[dayOffset].get(stockNo) is None:
+                if dailyQuotes[dayOffset+1].get(stockNo) is None:
+                    outputFile.write(',')
+                else:
+                    outputFile.write(str(dailyQuotes[dayOffset+1][stockNo].closePrice)+',')
+            else:
+                outputFile.write(str(dailyQuotes[dayOffset][stockNo].closePrice)+',')
+
+            # 今日開盤價
+            outputFile.write(str(quotes[stockNo].openPrice)+',')
+
+            # 今日最高價
+            outputFile.write(str(quotes[stockNo].highPrice)+',')
+
+            # 今日最低價
+            outputFile.write(str(quotes[stockNo].lowPrice)+',')
+
+            # 今日收盤價
+            outputFile.write(str(quotes[stockNo].closePrice)+',')
+
+            # 今日漲跌幅
+            outputFile.write(str(quotes[stockNo].priceChangeRate)+',')
+
+            # 今日累計量
+            outputFile.write(str(quotes[stockNo].volume)+',')
+
+            # 昨日收量
+            if dailyQuotes[dayOffset].get(stockNo) is None:
+                outputFile.write(',')
+            else:
+                outputFile.write(str(dailyQuotes[dayOffset][stockNo].volume)+',')
+
+            # 20日均量
+            outputFile.write('{0:.4f}'.format(averageVolumes['20d'])+',')
+
+            # 前5日均價、前20日均價、前60日均價
+            # 昨5日均價、昨20日均價、昨60日均價
+            # 今5日均價、今20日均價、今60日均價
+            for i in range(len(averagePrices)-1, -1, -1):
+                outputFile.write('{0:.4f}'.format(averagePrices[i]['5d'])+',')
+                outputFile.write('{0:.4f}'.format(averagePrices[i]['20d'])+',')
+                outputFile.write('{0:.4f}'.format(averagePrices[i]['60d'])+',')
+
+            # 年最高價
+            if dailyQuotes[dayOffset].get(stockNo) is None:
+                if dailyQuotes[dayOffset+1].get(stockNo) is None:
+                    yearHighPrice = None
+                else:
+                    yearHighPrice = dailyQuotes[dayOffset+1][stockNo].yearHighPrice
+            else:
+                yearHighPrice = dailyQuotes[dayOffset][stockNo].yearHighPrice
+
+            if yearHighPrice is None:
+                outputFile.write(',')
+            else:
+                if yearHighPrice > highPrices['20d']:
+                    outputFile.write('{0:.4f}'.format(yearHighPrice)+',')
+                else:
+                    outputFile.write('{0:.4f}'.format(highPrices['20d'])+',')
+
+            # 年最低價
+            if dailyQuotes[dayOffset].get(stockNo) is None:
+                if dailyQuotes[dayOffset+1].get(stockNo) is None:
+                    yearLowPrice = None
+                else:
+                    yearLowPrice = dailyQuotes[dayOffset+1][stockNo].yearLowPrice
+            else:
+                yearLowPrice = dailyQuotes[dayOffset][stockNo].yearLowPrice
+
+            if yearLowPrice is None:
+                outputFile.write(',')
+            else:
+                if yearLowPrice < lowPrices['20d']:
+                    outputFile.write('{0:.4f}'.format(yearLowPrice)+',')
+                else:
+                    outputFile.write('{0:.4f}'.format(lowPrices['20d'])+',')
+
+            # 20日最高價
+            if highPrices['20d'] is None:
+                outputFile.write(',')
+            else:
+                outputFile.write('{0:.4f}'.format(highPrices['20d'])+',')
+
+            # 20日最低價
+            if lowPrices['20d'] is None:
+                outputFile.write(',')
+            else:
+                outputFile.write('{0:.4f}'.format(lowPrices['20d'])+',')
+
+            # 昨9日K、昨9日D
+            # 今9日K、今9日D
+            if ks is None or ds is None:
+                outputFile.write(',')
+                outputFile.write(',')
+                outputFile.write(',')
+                outputFile.write(',')
+            else:
+                outputFile.write('{0:.4f}'.format(ks[1])+',')
+                outputFile.write('{0:.4f}'.format(ds[1])+',')
+                outputFile.write('{0:.4f}'.format(ks[0])+',')
+                outputFile.write('{0:.4f}'.format(ds[0])+',')
+            """
+
+            outputFile.write('\n')
+
+
 def retriveOneStock(stockNo):
     # 檢查是否有今日行情
     if isMarketOpen():
@@ -1487,8 +1793,8 @@ def retriveStocks(division, prevDailyQuotes):
 def retriveAllStocksMultiThread():
     print('\n')
 
-    START_STOCK_NO = 1000       # 啟始代號
-    STOP_STOCK_NO = 10000       # 結束代號
+    START_STOCK_NO = 2330       # 啟始代號
+    STOP_STOCK_NO = 2331       # 結束代號
     DIVISION_COUNT = 30         # 分割太多會掉資料
     STOCK_COUNT_PER_DIVISION = (STOP_STOCK_NO - START_STOCK_NO) // DIVISION_COUNT
 
@@ -1527,6 +1833,7 @@ def retriveAllStocksMultiThread():
     marketStartTime = 9 * 60 * 60
     marketStopTime = 14 * 60 * 60 + 30 * 60
 
+    """
     # 輸出報表
     #if currTime < marketStartTime or currTime > marketStopTime:
     #    filePath = getFilePath2()
@@ -1539,11 +1846,16 @@ def retriveAllStocksMultiThread():
     #SaveFile3(filePath, quotes)
 
     # 1 min
-    filePath = getFilePath4()
-    SaveFile4(filePath, quotes)
+    #filePath = getFilePath4()
+    #SaveFile4(filePath, quotes)
 
     filePath = getFilePath()
     SaveFile(filePath, quotes)
+    """
+
+    # 月K
+    filePath = GetFilePath5()
+    SaveFile5(filePath, quotes)
 
     # 結束時間
     stopTime = datetime.now()
