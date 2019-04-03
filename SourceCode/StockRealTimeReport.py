@@ -781,24 +781,27 @@ def calculateKD2(highPricesPerMonth, lowPricesPerMonth, closePricesPerMonth, mon
     ks = {}
     ds = {}
 
-    prevK = 50
-    prevD = 50
-    for i in range(startKD, stopKD, -1):
-        highPrice = -1000000
-        lowPrice = 1000000
-        for j in range(i, i + kdPeriod):
-            if highPrices[j] > highPrice:
-                highPrice = highPrices[j]
-            if lowPrices[j] < lowPrice:
-                lowPrice = lowPrices[j]
-        if (highPrice - lowPrice) * 100 == 0:
-            rsvs[i] = 0
-        else:
-            rsvs[i] = (closePrices[i] - lowPrice) / (highPrice - lowPrice) * 100
-        ks[i] = (1 - 1 / 3) * prevK + 1 / 3 * rsvs[i]
-        ds[i] = (1 - 1 / 3) * prevD + 1 / 3 * ks[i]
-        prevK = ks[i]
-        prevD = ds[i]
+    try:
+        prevK = 50
+        prevD = 50
+        for i in range(startKD, stopKD, -1):
+            highPrice = -1000000
+            lowPrice = 1000000
+            for j in range(i, i + kdPeriod):
+                if highPrices[j] > highPrice:
+                    highPrice = highPrices[j]
+                if lowPrices[j] < lowPrice:
+                    lowPrice = lowPrices[j]
+            if (highPrice - lowPrice) * 100 == 0:
+                rsvs[i] = 0
+            else:
+                rsvs[i] = (closePrices[i] - lowPrice) / (highPrice - lowPrice) * 100
+            ks[i] = (1 - 1 / 3) * prevK + 1 / 3 * rsvs[i]
+            ds[i] = (1 - 1 / 3) * prevD + 1 / 3 * ks[i]
+            prevK = ks[i]
+            prevD = ds[i]
+    except:
+        return (None, None)
 
     return (ks, ds)
 
@@ -1500,12 +1503,30 @@ def SaveFile5(filePath, quotes):
         marketOpen = False
 
     # 讀取歷史資料
-    #dailyQuotes = StockDailyQuote.loadQuotes(0, 70)
     path = '../DailyQuote/'
     if os.path.isdir(path) is False:
         return None
     files = os.listdir(path)
     files.sort(reverse=True)
+
+    closePricesPerMonth = {}
+    openPricesPerMonth = {}
+    highPricesPerMonth = {}
+    lowPricesPerMonth = {}
+    volumesPerMonth = {}
+    for stockNo in range(1000, 10000):
+        if quotes.get(stockNo) is None:
+            closePricesPerMonth[stockNo] = None
+            openPricesPerMonth[stockNo] = None
+            highPricesPerMonth[stockNo] = None
+            lowPricesPerMonth[stockNo] = None
+            volumesPerMonth[stockNo] = None
+            continue
+        closePricesPerMonth[stockNo] = {}
+        openPricesPerMonth[stockNo] = {}
+        highPricesPerMonth[stockNo] = {}
+        lowPricesPerMonth[stockNo] = {}
+        volumesPerMonth[stockNo] = {}
 
     month = -1
     day = -1
@@ -1518,9 +1539,30 @@ def SaveFile5(filePath, quotes):
             month += 1
             day = 0
             filesPerMonth[month] = {}
-        filesPerMonth[month][day] = fileName
+            for stockNo in range(1000, 10000):
+                if quotes.get(stockNo) is None:
+                    continue
+                closePricesPerMonth[stockNo][month] = {}
+                openPricesPerMonth[stockNo][month] = {}
+                highPricesPerMonth[stockNo][month] = {}
+                lowPricesPerMonth[stockNo][month] = {}
+                volumesPerMonth[stockNo][month] = {}
+            filesPerMonth[month][day] = fileName
+            with open(path + fileName, 'rb') as inputFile:
+                quote = pickle.load(inputFile)
+                for stockNo in range(1000, 10000):
+                    if quotes.get(stockNo) is None:
+                        continue
+                    if quote.get(stockNo) is None:
+                        continue
+                    closePricesPerMonth[stockNo][month][day] = quote[stockNo].closePrice
+                    openPricesPerMonth[stockNo][month][day] = quote[stockNo].openPrice
+                    highPricesPerMonth[stockNo][month][day] = quote[stockNo].highPrice
+                    lowPricesPerMonth[stockNo][month][day] = quote[stockNo].lowPrice
+                    volumesPerMonth[stockNo][month][day] = quote[stockNo].volume
         day += 1
 
+    """
     closePricesPerMonth = {}
     openPricesPerMonth = {}
     highPricesPerMonth = {}
@@ -1555,6 +1597,7 @@ def SaveFile5(filePath, quotes):
                     highPricesPerMonth[stockNo][month][day] = quote[stockNo].highPrice
                     lowPricesPerMonth[stockNo][month][day] = quote[stockNo].lowPrice
                     volumesPerMonth[stockNo][month][day] = quote[stockNo].volume
+    """
 
     # 輸出檔案
     with open(filePath, 'w', encoding='UTF-16') as outputFile:
@@ -1590,126 +1633,124 @@ def SaveFile5(filePath, quotes):
             outputFile.write(quotes[stockNo].stockName+',')
 
             # 前月開盤價
-            if openPricesPerMonth[stockNo] is None:
-                outputFile.write(',')
-            else:
+            try:
                 month = 2
                 day = len(openPricesPerMonth[stockNo][month]) - 1
                 openPrice = openPricesPerMonth[stockNo][month][day]
                 outputFile.write(str(openPrice)+',')
-
-            print(highPricesPerMonth[2330][2])
+            except:
+                outputFile.write(',')
 
             # 前月最高價
-            if highPricesPerMonth[stockNo] is None:
-                outputFile.write(',')
-            else:
+            try:
                 month = 2
                 highPrice = -1
                 for day in highPricesPerMonth[stockNo][month]:
                     if highPricesPerMonth[stockNo][month][day] > highPrice:
                         highPrice = highPricesPerMonth[stockNo][month][day]
                 outputFile.write(str(highPrice)+',')
+            except:
+                outputFile.write(',')
 
             # 前月最低價
-            if lowPricesPerMonth[stockNo] is None:
-                outputFile.write(',')
-            else:
+            try:
                 month = 2
                 lowPrice = 1000000
                 for day in lowPricesPerMonth[stockNo][month]:
                     if lowPricesPerMonth[stockNo][month][day] < lowPrice:
                         lowPrice = lowPricesPerMonth[stockNo][month][day]
                 outputFile.write(str(lowPrice)+',')
+            except:
+                outputFile.write(',')
 
             # 前月收盤價
-            if closePricesPerMonth[stockNo] is None:
-                outputFile.write(',')
-            else:
+            try:
                 month = 2
                 day = 0
                 closePrice = closePricesPerMonth[stockNo][month][day]
                 outputFile.write(str(closePrice)+',')
+            except:
+                outputFile.write(',')
 
             # 上月開盤價
-            if openPricesPerMonth[stockNo] is None:
-                outputFile.write(',')
-            else:
+            try:
                 month = 1
                 day = len(openPricesPerMonth[stockNo][month]) - 1
                 openPrice = openPricesPerMonth[stockNo][month][day]
                 outputFile.write(str(openPrice)+',')
+            except:
+                outputFile.write(',')
 
             # 上月最高價
-            if highPricesPerMonth[stockNo] is None:
-                outputFile.write(',')
-            else:
+            try:
                 month = 1
                 highPrice = -1
                 for day in highPricesPerMonth[stockNo][month]:
                     if highPricesPerMonth[stockNo][month][day] > highPrice:
                         highPrice = highPricesPerMonth[stockNo][month][day]
                 outputFile.write(str(highPrice)+',')
+            except:
+                outputFile.write(',')
 
             # 上月最低價
-            if lowPricesPerMonth[stockNo] is None:
-                outputFile.write(',')
-            else:
+            try:
                 month = 1
                 lowPrice = 1000000
                 for day in lowPricesPerMonth[stockNo][month]:
                     if lowPricesPerMonth[stockNo][month][day] < lowPrice:
                         lowPrice = lowPricesPerMonth[stockNo][month][day]
                 outputFile.write(str(lowPrice)+',')
+            except:
+                outputFile.write(',')
 
             # 上月收盤價
-            if closePricesPerMonth[stockNo] is None:
-                outputFile.write(',')
-            else:
+            try:
                 month = 1
                 day = 0
                 closePrice = closePricesPerMonth[stockNo][month][day]
                 outputFile.write(str(closePrice)+',')
+            except:
+                outputFile.write(',')
 
             # 本月開盤價
-            if openPricesPerMonth[stockNo] is None:
-                outputFile.write(',')
-            else:
+            try:
                 month = 0
                 day = len(openPricesPerMonth[stockNo][month]) - 1
                 openPrice = openPricesPerMonth[stockNo][month][day]
                 outputFile.write(str(openPrice)+',')
+            except:
+                outputFile.write(',')
 
             # 本月最高價
-            if highPricesPerMonth[stockNo] is None:
-                outputFile.write(',')
-            else:
+            try:
                 month = 0
                 highPrice = -1
                 for day in highPricesPerMonth[stockNo][month]:
                     if highPricesPerMonth[stockNo][month][day] > highPrice:
                         highPrice = highPricesPerMonth[stockNo][month][day]
                 outputFile.write(str(highPrice)+',')
+            except:
+                outputFile.write(',')
 
             # 本月最低價
-            if lowPricesPerMonth[stockNo] is None:
-                outputFile.write(',')
-            else:
+            try:
                 month = 0
                 lowPrice = 1000000
                 for day in lowPricesPerMonth[stockNo][month]:
                     if lowPricesPerMonth[stockNo][month][day] < lowPrice:
                         lowPrice = lowPricesPerMonth[stockNo][month][day]
                 outputFile.write(str(lowPrice)+',')
+            except:
+                outputFile.write(',')
 
             # 本月收盤價
-            if closePricesPerMonth[stockNo] is None:
-                outputFile.write(',')
-            else:
+            try:
                 month = 0
                 day = 0
                 closePrice = closePricesPerMonth[stockNo][month][day]
                 outputFile.write(str(closePrice)+',')
+            except:
+                outputFile.write(',')
 
             # 本月累計量
             if volumesPerMonth[stockNo] is None:
