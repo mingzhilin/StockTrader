@@ -372,7 +372,7 @@ def loadQuotes(dayOffset, dayCount):
 
     quotes = {}
     for i in range(start, stop):
-        with open (path+files[i], 'rb') as inputFile:
+        with open(path+files[i], 'rb') as inputFile:
             quotes[i] = pickle.load(inputFile)
 
     return quotes
