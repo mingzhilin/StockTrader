@@ -1488,7 +1488,7 @@ def GetFilePath5():
     currTime2 = '{h:02d}.{m:02d}.{s:02d}'.format(h=hour, m=minute, s=second)
 
     # 輸出檔案
-    filePath = path + '/StockRealTimeReport月K(' + currTime1 + '-' + currTime2 + ').csv'
+    filePath = path + '/StockRealTimeReportMonthKD(' + currTime1 + '-' + currTime2 + ').csv'
 
     return filePath
 
@@ -1533,7 +1533,6 @@ def SaveFile5(filePath, quotes):
     filesPerMonth = {}
     monthStr = None
     for fileName in files:
-        #print(fileName[11:18])
         if fileName[11:18] != monthStr:
             monthStr = fileName[11:18]
             month += 1
@@ -1547,19 +1546,22 @@ def SaveFile5(filePath, quotes):
                 highPricesPerMonth[stockNo][month] = {}
                 lowPricesPerMonth[stockNo][month] = {}
                 volumesPerMonth[stockNo][month] = {}
-            filesPerMonth[month][day] = fileName
-            with open(path + fileName, 'rb') as inputFile:
+        filesPerMonth[month][day] = fileName
+        with open(path + fileName, 'rb') as inputFile:
+            try:
                 quote = pickle.load(inputFile)
-                for stockNo in range(1000, 10000):
-                    if quotes.get(stockNo) is None:
-                        continue
-                    if quote.get(stockNo) is None:
-                        continue
-                    closePricesPerMonth[stockNo][month][day] = quote[stockNo].closePrice
-                    openPricesPerMonth[stockNo][month][day] = quote[stockNo].openPrice
-                    highPricesPerMonth[stockNo][month][day] = quote[stockNo].highPrice
-                    lowPricesPerMonth[stockNo][month][day] = quote[stockNo].lowPrice
-                    volumesPerMonth[stockNo][month][day] = quote[stockNo].volume
+            except:
+                continue
+            for stockNo in range(1000, 10000):
+                if quotes.get(stockNo) is None:
+                    continue
+                if quote.get(stockNo) is None:
+                    continue
+                closePricesPerMonth[stockNo][month][day] = quote[stockNo].closePrice
+                openPricesPerMonth[stockNo][month][day] = quote[stockNo].openPrice
+                highPricesPerMonth[stockNo][month][day] = quote[stockNo].highPrice
+                lowPricesPerMonth[stockNo][month][day] = quote[stockNo].lowPrice
+                volumesPerMonth[stockNo][month][day] = quote[stockNo].volume
         day += 1
 
     """
@@ -1918,12 +1920,12 @@ def retriveAllStocksMultiThread():
     #filePath = getFilePath4()
     #SaveFile4(filePath, quotes)
 
-    filePath = getFilePath()
-    SaveFile(filePath, quotes)
-
     # 月K
     filePath = GetFilePath5()
     SaveFile5(filePath, quotes)
+
+    filePath = getFilePath()
+    SaveFile(filePath, quotes)
 
     # 結束時間
     stopTime = datetime.now()
