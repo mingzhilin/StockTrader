@@ -144,29 +144,50 @@ class ProfitQuote():
 
         return avg5Y
 
-    def calculateAvg4Q(self, growthRate, avg5Y):
+    def calculateAvg4Q(self, growthRate):
         avg4Q = 0
-        totalGrowthRate = 0
+        currAvgGrowthRate = 0
+        prevAvgGrowthRate = 0
 
         year = self.latestQuarter // 100
         quarter = self.latestQuarter % 100
 
+        count = 0
+        totalGrowthRate = 0
         for i in range(4):
             if growthRate.get(year) is None:
                 continue
             if growthRate[year].get(quarter) is None:
                 continue
+            count += 1
             totalGrowthRate += growthRate[year][quarter]
             quarter -= 1
             if quarter == 0:
                 quarter = 4
                 year -= 1
+        if count > 0:
+            currAvgGrowthRate = totalGrowthRate / count
 
-        #print('totalGrowthRate =', totalGrowthRate)
+        count = 0
+        totalGrowthRate = 0
+        for i in range(4):
+            if growthRate.get(year) is None:
+                continue
+            if growthRate[year].get(quarter) is None:
+                continue
+            count += 1
+            totalGrowthRate += growthRate[year][quarter]
+            quarter -= 1
+            if quarter == 0:
+                quarter = 4
+                year -= 1
+        if count > 0:
+            prevAvgGrowthRate = totalGrowthRate / count
 
-        avg5Y *= 100
-        if avg5Y != 0:
-            avg4Q = (totalGrowthRate - avg5Y) / avg5Y
+        #print('currAvgGrowthRate =', currAvgGrowthRate)
+        #print('prevAvgGrowthRate =', prevAvgGrowthRate)
+
+        avg4Q = (currAvgGrowthRate - prevAvgGrowthRate) / 100
 
         return avg4Q
 
@@ -265,72 +286,40 @@ class ProfitQuote():
                 return False
 
         try:
-            curr = self.grossProfitMargin[currYear][currQuarter] * self.operateIncomePerShare[currYear][currQuarter]
-            prev = self.grossProfitMargin[prevYear][prevQuarter] * self.operateIncomePerShare[prevYear][prevQuarter]
-            self.grossProfitGrowthRate['qoq'] = (curr - prev) / prev
+            curr = self.grossProfitMargin[currYear][currQuarter]
+            prev = self.grossProfitMargin[prevYear][prevQuarter]
+            self.grossProfitGrowthRate['qoq'] = (curr - prev) / 100
         except:
             self.grossProfitGrowthRate['qoq'] = 0
 
         try:
-            curr = self.grossProfitMargin[currYear][currQuarter] * self.operateIncomePerShare[currYear][currQuarter]
-            last = self.grossProfitMargin[lastYear][lastQuarter] * self.operateIncomePerShare[lastYear][lastQuarter]
-            self.grossProfitGrowthRate['yoy'] = (curr - last) / last
+            curr = self.grossProfitMargin[currYear][currQuarter]
+            last = self.grossProfitMargin[lastYear][lastQuarter]
+            self.grossProfitGrowthRate['yoy'] = (curr - last) / 100
         except:
             self.grossProfitGrowthRate['yoy'] = 0
 
         try:
-            curr = 0
-            prev = 0
-            year = currYear
-            quarter = currQuarter
-            for i in range(4):
-                curr += self.grossProfitMargin[year][quarter] * self.operateIncomePerShare[year][quarter]
-                quarter -= 1
-                if quarter == 0:
-                    quarter = 4
-                    year -= 1
-            for i in range(4):
-                prev += self.grossProfitMargin[year][quarter] * self.operateIncomePerShare[year][quarter]
-                quarter -= 1
-                if quarter == 0:
-                    quarter = 4
-                    year -= 1
-            self.grossProfitGrowthRate['cumulative'] = (curr - prev) / prev
+            self.grossProfitGrowthRate['cumulative'] = self.calculateAvg4Q(self.grossProfitMargin)
         except:
             self.grossProfitGrowthRate['cumulative'] = 0
 
         try:
-            self.operateProfitGrowthRate['qoq'] = (self.operateProfitPerShare[currYear][currQuarter] - \
-                                                  self.operateProfitPerShare[prevYear][prevQuarter]) / \
-                                                  self.operateProfitPerShare[prevYear][prevQuarter]
+            curr = self.operateProfitMargin[currYear][currQuarter]
+            prev = self.operateProfitMargin[prevYear][prevQuarter]
+            self.operateProfitGrowthRate['qoq'] = (curr - prev) / 100
         except:
             self.operateProfitGrowthRate['qoq'] = 0
 
         try:
-            self.operateProfitGrowthRate['yoy'] = (self.operateProfitPerShare[currYear][currQuarter] - \
-                                                  self.operateProfitPerShare[lastYear][lastQuarter]) / \
-                                                  self.operateProfitPerShare[lastYear][lastQuarter]
+            curr = self.operateProfitMargin[currYear][currQuarter]
+            last = self.operateProfitMargin[lastYear][lastQuarter]
+            self.operateProfitGrowthRate['yoy'] = (curr - last) / 100
         except:
             self.operateProfitGrowthRate['yoy'] = 0
 
         try:
-            curr = 0
-            prev = 0
-            year = currYear
-            quarter = currQuarter
-            for i in range(4):
-                curr += self.operateProfitPerShare[year][quarter]
-                quarter -= 1
-                if quarter == 0:
-                    quarter = 4
-                    year -= 1
-            for i in range(4):
-                prev += self.operateProfitPerShare[year][quarter]
-                quarter -= 1
-                if quarter == 0:
-                    quarter = 4
-                    year -= 1
-            self.operateProfitGrowthRate['cumulative'] = (curr - prev) / prev
+            self.operateProfitGrowthRate['cumulative'] = self.calculateAvg4Q(self.operateProfitMargin)
         except:
             self.operateProfitGrowthRate['cumulative'] = 0
 
@@ -340,8 +329,8 @@ class ProfitQuote():
         self.retriveAvg5Y()
         self.roeGrowthRate['avg5Y'] = self.calculateAvg5Y(self.roe)
         self.roaGrowthRate['avg5Y'] = self.calculateAvg5Y(self.roa)
-        self.roeGrowthRate['avg4Q'] = self.calculateAvg4Q(self.roe, self.roeGrowthRate['avg5Y'])
-        self.roaGrowthRate['avg4Q'] = self.calculateAvg4Q(self.roa, self.roaGrowthRate['avg5Y'])
+        self.roeGrowthRate['avg4Q'] = self.calculateAvg4Q(self.roe)
+        self.roaGrowthRate['avg4Q'] = self.calculateAvg4Q(self.roa)
 
         return True
 
