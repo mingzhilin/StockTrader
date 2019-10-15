@@ -350,7 +350,7 @@ def retriveAllStocksMultiThread():
 
     # 輸出檔案
     now = date.today()
-    currMonth = str(now.year) + '-' + str(now.month)
+    currMonth = '{y:02d}-{m:02d}'.format(y=now.year, m=now.month)
     filePath = path + '/RevenueQuote(' + currMonth + ').pkl'
     with open(filePath, 'wb') as outputFile:
         pickle.dump(quotes, outputFile, protocol=pickle.HIGHEST_PROTOCOL)
