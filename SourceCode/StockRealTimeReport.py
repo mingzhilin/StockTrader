@@ -885,7 +885,7 @@ def getFilePath():
     currTime2 = '{h:02d}.{m:02d}.{s:02d}'.format(h=hour, m=minute, s=second)
 
     # 輸出檔案
-    filePath = path + '/04_StockRealTimeReport(' + currTime1 + '-' + currTime2 + ').csv'
+    filePath = path + '/StockRealTimeReport(' + currTime1 + '-' + currTime2 + ').csv'
 
     return filePath
 
@@ -1189,7 +1189,7 @@ def getFilePath2():
     currTime2 = '{h:02d}.{m:02d}.{s:02d}'.format(h=hour, m=minute, s=second)
 
     # 輸出檔案
-    filePath = path + '/01_StockCumulativeVolumeReport(' + currTime1 + '-' + currTime2 + ').csv'
+    filePath = path + '/StockCumulativeVolumeReport(' + currTime1 + '-' + currTime2 + ').csv'
 
     return filePath
 
@@ -1547,19 +1547,19 @@ def GetFilePath5():
     currTime2 = '{h:02d}.{m:02d}.{s:02d}'.format(h=hour, m=minute, s=second)
 
     # 輸出檔案
-    filePath = path + '/02_StockRealTimeReportMonthKD(' + currTime1 + '-' + currTime2 + ').csv'
+    filePath = path + '/StockRealTimeReportMonthKD(' + currTime1 + '-' + currTime2 + ').csv'
 
     return filePath
 
 
 def SaveFile5(filePath, quotes):
     # 檢查是否有今日行情
-    if isMarketOpen():
-        dayOffset = 0
-        marketOpen = True
-    else:
-        dayOffset = 1
-        marketOpen = False
+    #if isMarketOpen():
+    #    dayOffset = 0
+    #    marketOpen = True
+    #else:
+    #    dayOffset = 1
+    #    marketOpen = False
 
     # 讀取歷史資料
     path = '../DailyQuote/'
@@ -1622,43 +1622,6 @@ def SaveFile5(filePath, quotes):
                 lowPricesPerMonth[stockNo][month][day] = quote[stockNo].lowPrice
                 volumesPerMonth[stockNo][month][day] = quote[stockNo].volume
         day += 1
-
-    """
-    closePricesPerMonth = {}
-    openPricesPerMonth = {}
-    highPricesPerMonth = {}
-    lowPricesPerMonth = {}
-    volumesPerMonth = {}
-    for stockNo in range(1000, 10000):
-        if quotes.get(stockNo) is None:
-            closePricesPerMonth[stockNo] = None
-            openPricesPerMonth[stockNo] = None
-            highPricesPerMonth[stockNo] = None
-            lowPricesPerMonth[stockNo] = None
-            volumesPerMonth[stockNo] = None
-            continue
-        closePricesPerMonth[stockNo] = {}
-        openPricesPerMonth[stockNo] = {}
-        highPricesPerMonth[stockNo] = {}
-        lowPricesPerMonth[stockNo] = {}
-        volumesPerMonth[stockNo] = {}
-        for month in filesPerMonth.keys():
-            closePricesPerMonth[stockNo][month] = {}
-            openPricesPerMonth[stockNo][month] = {}
-            highPricesPerMonth[stockNo][month] = {}
-            lowPricesPerMonth[stockNo][month] = {}
-            volumesPerMonth[stockNo][month] = {}
-            for day in filesPerMonth[month].keys():
-                with open(path + filesPerMonth[month][day], 'rb') as inputFile:
-                    quote = pickle.load(inputFile)
-                    if stockNo not in quote:
-                        continue
-                    closePricesPerMonth[stockNo][month][day] = quote[stockNo].closePrice
-                    openPricesPerMonth[stockNo][month][day] = quote[stockNo].openPrice
-                    highPricesPerMonth[stockNo][month][day] = quote[stockNo].highPrice
-                    lowPricesPerMonth[stockNo][month][day] = quote[stockNo].lowPrice
-                    volumesPerMonth[stockNo][month][day] = quote[stockNo].volume
-    """
 
     # 輸出檔案
     with open(filePath, 'w', encoding='UTF-16') as outputFile:
@@ -1872,19 +1835,19 @@ def GetFilePath6():
     currTime2 = '{h:02d}.{m:02d}.{s:02d}'.format(h=hour, m=minute, s=second)
 
     # 輸出檔案
-    filePath = path + '/03_StockRealTimeReportWeekKD(' + currTime1 + '-' + currTime2 + ').csv'
+    filePath = path + '/StockRealTimeReportWeekKD(' + currTime1 + '-' + currTime2 + ').csv'
 
     return filePath
 
 
 def SaveFile6(filePath, quotes):
     # 檢查是否有今日行情
-    if isMarketOpen():
-        dayOffset = 0
-        marketOpen = True
-    else:
-        dayOffset = 1
-        marketOpen = False
+    #if isMarketOpen():
+    #    dayOffset = 0
+    #    marketOpen = True
+    #else:
+    #    dayOffset = 1
+    #    marketOpen = False
 
     # 讀取歷史資料
     path = '../DailyQuote/'
@@ -1921,6 +1884,7 @@ def SaveFile6(filePath, quotes):
         try:
             prevDate = date.fromisoformat(fileName[11:21])
         except:
+            # avoid .DS_Store (for Mac OS)
             continue
         prevDayOfWeek = prevDate.weekday()
         if prevDayOfWeek >= currDayOfWeek or (currDate-prevDate).days > 5:
@@ -2150,14 +2114,10 @@ def SaveFile6(filePath, quotes):
                 outputFile.write(',')
                 outputFile.write(',')
             else:
-                if ks.get(1) is not None:
-                    outputFile.write('{0:.4f}'.format(ks[1])+',')
-                if ds.get(1) is not None:
-                    outputFile.write('{0:.4f}'.format(ds[1])+',')
-                if ks.get(0) is not None:
-                    outputFile.write('{0:.4f}'.format(ks[0])+',')
-                if ds.get(0) is not None:
-                    outputFile.write('{0:.4f}'.format(ds[0])+',')
+                outputFile.write('{0:.4f}'.format(ks[1])+',')
+                outputFile.write('{0:.4f}'.format(ds[1])+',')
+                outputFile.write('{0:.4f}'.format(ks[0])+',')
+                outputFile.write('{0:.4f}'.format(ds[0])+',')
 
             outputFile.write('\n')
 
@@ -2269,10 +2229,10 @@ def retriveAllStocksMultiThread():
     for i in range(DIVISION_COUNT):
         quotes = {**quotes, **divisions[i]['quotes']}
 
-    now = datetime.now()
-    currTime = now.hour * 60 * 60 + now.minute * 60 + now.second
-    marketStartTime = 9 * 60 * 60
-    marketStopTime = 14 * 60 * 60 + 30 * 60
+    #now = datetime.now()
+    #currTime = now.hour * 60 * 60 + now.minute * 60 + now.second
+    #marketStartTime = 9 * 60 * 60
+    #marketStopTime = 14 * 60 * 60 + 30 * 60
 
     # 輸出報表
     #if currTime < marketStartTime or currTime > marketStopTime:
@@ -2289,13 +2249,13 @@ def retriveAllStocksMultiThread():
     #filePath = getFilePath4()
     #SaveFile4(filePath, quotes)
 
-    # 週KD
-    filePath = GetFilePath6()
-    SaveFile6(filePath, quotes)
-
     # 月KD
     filePath = GetFilePath5()
     SaveFile5(filePath, quotes)
+
+    # 週KD
+    filePath = GetFilePath6()
+    SaveFile6(filePath, quotes)
 
     filePath = getFilePath()
     SaveFile(filePath, quotes)
