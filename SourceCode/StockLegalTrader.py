@@ -155,10 +155,15 @@ def retriveAllStocks():
     # 開始時間
     startTime = datetime.now()
 
+    # 讀取歷史資料
+    prevDailyQuotes = StockDailyQuote.loadQuotes(0, 1)[0]
+
     # 讀取資料
     quotes = {}
     for stockNo in range(1000, 10000):
         print('股票代號：', stockNo, end='\r')
+        if prevDailyQuotes.get(stockNo) is None:
+            continue
         quote = LegalTrader(stockNo)
         if quote.retriveQuote() is True:
             quotes[stockNo] = quote
@@ -228,8 +233,8 @@ if __name__ == '__main__':
     # 指令格式(單一股票)：python StockLegalTrader.py [股票代號]
     # 指令格式(全部股票)：python StockLegalTrader.py
     if len(sys.argv) < 2:
-        #retriveAllStocks()
-        retriveAllStocksMultiThread()
+        retriveAllStocks()
+        #retriveAllStocksMultiThread()
     else:
         stockNo = int(sys.argv[1])
         retriveOneStock(stockNo)
