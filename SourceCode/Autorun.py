@@ -105,7 +105,7 @@ def retriveAllQuotes():
         1: Thread(target=StockDividendQuote.retriveAllStocksMultiThread),
         2: Thread(target=StockEpsQuote.retriveAllStocksMultiThread),
         3: Thread(target=StockMarginQuote.retriveAllStocksMultiThread),
-        4: Thread(target=StockLegalTrader.retriveAllStocksMultiThread),
+        4: Thread(target=StockLegalTrader.retriveAllStocks),
         5: Thread(target=StockProfitQuote.retriveAllStocksMultiThread),
         6: Thread(target=StockRevenueQuote.retriveAllStocksMultiThread),
         7: Thread(target=StockRealTimeReport.retriveAllStocksMultiThread)
@@ -185,7 +185,7 @@ if __name__ == '__main__':
         '1': StockRealTimeReport.retriveAllStocksMultiThread,
         '2': StockDailyQuote.retriveAllStocksMultiThread,
         '3': StockMarginQuote.retriveAllStocksMultiThread,
-        '4': StockLegalTrader.retriveAllStocksMultiThread,
+        '4': StockLegalTrader.retriveAllStocks,
         '5': StockRevenueQuote.retriveAllStocksMultiThread,
         '6': StockEpsQuote.retriveAllStocksMultiThread,
         '7': StockProfitQuote.retriveAllStocksMultiThread,
