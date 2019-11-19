@@ -149,9 +149,6 @@ def retriveAllStocksMultiThread():
 
 
 def retriveAllStocks():
-    if isMarketOpen() is False:
-        return
-
     # 開始時間
     startTime = datetime.now()
 
