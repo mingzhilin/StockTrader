@@ -39,37 +39,43 @@ class LegalTrader():
 
     def retriveQuote(self):
         stockNo = '{n:04d}'.format(n=self.stockNo)
-        url = 'http://www.wantgoo.com/stock/astock/three?StockNo=' + stockNo
-        html = self.retriveHtml(url)
+        url = 'https://pchome.megatime.com.tw/stock/sto1/sid' + stockNo + '.html'
+        payload = {'is_check': 1}
+        html = self.retriveHtml(url, payload)
         if html is None:
             return False
 
-        nodes = html.xpath('//tr/td/text()')
+        nodes = html.xpath('//tr/td/text() | //tr/th/text() | //tr/td/div/span//text()')
         if not nodes:
             return False
 
-        dayIndex = 0
-        while nodes:
-            if nodes[0] == '合計買賣超':
-                break
-            try:
-                self.netBuySell[dayIndex] = {}
-                self.netBuySell[dayIndex]['date'] = nodes[0]
-                # 外資
-                self.netBuySell[dayIndex]['foreign'] = float(nodes[1].replace(',', '')) + \
-                                                       float(nodes[2].replace(',', ''))
-                # 投信
-                self.netBuySell[dayIndex]['domestic'] = float(nodes[3].replace(',', ''))
-                # 自營商
-                self.netBuySell[dayIndex]['dealer'] = float(nodes[4].replace(',', '')) + \
-                                                      float(nodes[5].replace(',', ''))
-                dayIndex += 1
-            except:
-                self.netBuySell[dayIndex]['date'] = None
-                self.netBuySell[dayIndex]['foreign'] = None
-                self.netBuySell[dayIndex]['domestic'] = None
-                self.netBuySell[dayIndex]['dealer'] = None
-            nodes = nodes[13:]
+        self.netBuySell['foreign'] = {}
+        self.netBuySell['domestic'] = {}
+        self.netBuySell['dealer'] = {}
+
+        try:
+            index = nodes.index('外資持股') + 7
+            nodes = nodes[index:]
+            for i in range(5):
+                self.netBuySell['foreign'][i] = int(nodes[i*6+3].replace(',', ''))
+        except:
+            self.netBuySell['foreign'] = None
+
+        try:
+            index = nodes.index('投信持股') + 7
+            nodes = nodes[index:]
+            for i in range(5):
+                self.netBuySell['domestic'][i] = int(nodes[i*6+3].replace(',', ''))
+        except:
+            self.netBuySell['domestic'] = None
+
+        try:
+            index = nodes.index('自營商持股') + 7
+            nodes = nodes[index:]
+            for i in range(5):
+                self.netBuySell['dealer'][i] = int(nodes[i*6+3].replace(',', ''))
+        except:
+            self.netBuySell['dealer'] = None
 
         return True
 
@@ -230,8 +236,8 @@ if __name__ == '__main__':
     # 指令格式(單一股票)：python StockLegalTrader.py [股票代號]
     # 指令格式(全部股票)：python StockLegalTrader.py
     if len(sys.argv) < 2:
-        retriveAllStocks()
-        #retriveAllStocksMultiThread()
+        #retriveAllStocks()
+        retriveAllStocksMultiThread()
     else:
         stockNo = int(sys.argv[1])
         retriveOneStock(stockNo)

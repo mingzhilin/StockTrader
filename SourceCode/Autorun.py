@@ -185,7 +185,7 @@ if __name__ == '__main__':
         '1': StockRealTimeReport.retriveAllStocksMultiThread,
         '2': StockDailyQuote.retriveAllStocksMultiThread,
         '3': StockMarginQuote.retriveAllStocksMultiThread,
-        '4': StockLegalTrader.retriveAllStocks,
+        '4': StockLegalTrader.retriveAllStocksMultiThread,
         '5': StockRevenueQuote.retriveAllStocksMultiThread,
         '6': StockEpsQuote.retriveAllStocksMultiThread,
         '7': StockProfitQuote.retriveAllStocksMultiThread,

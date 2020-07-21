@@ -23,29 +23,40 @@ from StockRevenueQuote import RevenueQuote
 from StockLegalTrader import LegalTrader
 
 
-def calculateNetBuySell(legalTrader, stockNo, isMarketOpen, dayCount):
+def calculateNetBuySell(legalTrader, stockNo):
     """計算法人買賣超"""
 
-    if isMarketOpen is True:
-        start = 1
+    if legalTrader.get(stockNo) is None:
+        netBuySell = {'foreign': None, 'domestic': None, 'dealer': None}
+        return netBuySell
+
+    netBuySell = {'foreign': {}, 'domestic': {}, 'dealer': {}}
+
+    if legalTrader[stockNo].netBuySell['foreign'] is None:
+        netBuySell['foreign'] = None
     else:
-        start = 0
-    stop = start + dayCount
+        netBuySell['foreign']['1d'] = legalTrader[stockNo].netBuySell['foreign'][0]
+        netBuySell['foreign']['5d'] = 0
+        for i in range(5):
+            netBuySell['foreign']['5d'] += legalTrader[stockNo].netBuySell['foreign'][i] 
 
-    maxDayCount = len(legalTrader)
-    if maxDayCount < dayCount:
-        dayCount = maxDayCount
+    if legalTrader[stockNo].netBuySell['domestic'] is None:
+        netBuySell['domestic'] = None
+    else:
+        netBuySell['domestic']['1d'] = legalTrader[stockNo].netBuySell['domestic'][0]
+        netBuySell['domestic']['5d'] = 0
+        for i in range(5):
+            netBuySell['domestic']['5d'] += legalTrader[stockNo].netBuySell['domestic'][i] 
 
-    totalNetBuySell = {'foreign': 0, 'domestic': 0, 'dealer': 0}
-    for i in range(start, stop):
-        try:
-            totalNetBuySell['foreign'] += legalTrader[stockNo].netBuySell[i]['foreign']
-            totalNetBuySell['domestic'] += legalTrader[stockNo].netBuySell[i]['domestic']
-            totalNetBuySell['dealer'] += legalTrader[stockNo].netBuySell[i]['dealer']
-        except:
-            pass
+    if legalTrader[stockNo].netBuySell['dealer'] is None:
+        netBuySell['dealer'] = None
+    else:
+        netBuySell['dealer']['1d'] = legalTrader[stockNo].netBuySell['dealer'][0]
+        netBuySell['dealer']['5d'] = 0
+        for i in range(5):
+            netBuySell['dealer']['5d'] += legalTrader[stockNo].netBuySell['dealer'][i] 
 
-    return totalNetBuySell
+    return netBuySell
 
 
 def calculateAveragePrice(dailyQuote, stockNo, dayCount):
@@ -160,6 +171,11 @@ def retriveOneStock(stockNo):
     if marginQuote.get(stockNo):
         marginQuote[stockNo].display()
 
+    print('\nLegalTrader:')
+    legalTrader = StockLegalTrader.loadQuotes(0, 1)[0]
+    if legalTrader.get(stockNo):
+        legalTrader[stockNo].display()
+
 
 def retriveAllStocks():
     print('\n')
@@ -246,11 +262,11 @@ def retriveAllStocks():
         #outputFile.write(str(currYear-2)+'股票股利,')
         outputFile.write('現金股息,')
         outputFile.write('股票股利,')
-        outputFile.write('20日外資,')
+        outputFile.write('5日外資,')
         outputFile.write('近日外資,')
-        outputFile.write('20日投信,')
+        outputFile.write('5日投信,')
         outputFile.write('近日投信,')
-        outputFile.write('20日自營商,')
+        outputFile.write('5日自營商,')
         outputFile.write('近日自營商,')
         outputFile.write('券資比,')
         outputFile.write('\n')
@@ -387,10 +403,8 @@ def retriveAllStocks():
             stockCount['output'] += 1
 
             # 法人買賣超
-            totalLegalTragerNetBuySell = {}
-            totalLegalTragerNetBuySell['1d'] = calculateNetBuySell(legalTrader, stockNo, isMarketOpen, 1)
-            totalLegalTragerNetBuySell['5d'] = calculateNetBuySell(legalTrader, stockNo, isMarketOpen, 5)
-            totalLegalTragerNetBuySell['20d'] = calculateNetBuySell(legalTrader, stockNo, isMarketOpen, 20)
+            legalTragerNetBuySell = {}
+            legalTragerNetBuySell = calculateNetBuySell(legalTrader, stockNo)
 
             # 股票代號
             outputFile.write(str(dailyQuote[0][stockNo].stockNo)+',')
@@ -632,68 +646,47 @@ def retriveAllStocks():
                 outputFile.write('{0:.4f}'.format(dividendQuote[stockNo].cashDividend[dividendYear])+',')
                 outputFile.write('{0:.4f}'.format(dividendQuote[stockNo].shareDividend[dividendYear])+',')
 
-            """
-            # 5日外資
-            if legalTrader.get(stockNo) is None or totalLegalTragerNetBuySell['5d']['foreign'] == 0:
+            # 外資持股
+            if legalTrader.get(stockNo) is None or legalTragerNetBuySell['foreign'] is None:
+                outputFile.write(',')
                 outputFile.write(',')
             else:
-                outputFile.write('{0:.4f}'.format(totalLegalTragerNetBuySell['5d']['foreign'])+',')
-            """
+                if legalTragerNetBuySell['foreign']['5d'] == 0:
+                    outputFile.write(',')
+                else:
+                    outputFile.write('{0:.4f}'.format(legalTragerNetBuySell['foreign']['5d'])+',')
+                if legalTragerNetBuySell['foreign']['1d'] == 0:
+                    outputFile.write(',')
+                else:
+                    outputFile.write('{0:.4f}'.format(legalTragerNetBuySell['foreign']['1d'])+',')
 
-            # 20日外資
-            if legalTrader.get(stockNo) is None or totalLegalTragerNetBuySell['20d']['foreign'] == 0:
+            # 投信持股
+            if legalTrader.get(stockNo) is None or legalTragerNetBuySell['domestic'] is None:
+                outputFile.write(',')
                 outputFile.write(',')
             else:
-                outputFile.write('{0:.4f}'.format(totalLegalTragerNetBuySell['20d']['foreign'])+',')
+                if legalTragerNetBuySell['domestic']['5d'] == 0:
+                    outputFile.write(',')
+                else:
+                    outputFile.write('{0:.4f}'.format(legalTragerNetBuySell['domestic']['5d'])+',')
+                if legalTragerNetBuySell['domestic']['1d'] == 0:
+                    outputFile.write(',')
+                else:
+                    outputFile.write('{0:.4f}'.format(legalTragerNetBuySell['domestic']['1d'])+',')
 
-            # 近日外資
-            if legalTrader.get(stockNo) is None or totalLegalTragerNetBuySell['1d']['foreign'] is None or \
-               totalLegalTragerNetBuySell['1d']['foreign'] == 0:
+            # 自營商持股
+            if legalTrader.get(stockNo) is None or legalTragerNetBuySell['dealer'] is None:
+                outputFile.write(',')
                 outputFile.write(',')
             else:
-                outputFile.write('{0:.4f}'.format(totalLegalTragerNetBuySell['1d']['foreign'])+',')
-
-            """
-            # 5日投信
-            if legalTrader.get(stockNo) is None or totalLegalTragerNetBuySell['5d']['domestic'] == 0:
-                outputFile.write(',')
-            else:
-                outputFile.write('{0:.4f}'.format(totalLegalTragerNetBuySell['5d']['domestic'])+',')
-            """
-
-            # 20日投信
-            if legalTrader.get(stockNo) is None or totalLegalTragerNetBuySell['20d']['domestic'] == 0:
-                outputFile.write(',')
-            else:
-                outputFile.write('{0:.4f}'.format(totalLegalTragerNetBuySell['20d']['domestic'])+',')
-
-            # 近日投信
-            if legalTrader.get(stockNo) is None or totalLegalTragerNetBuySell['1d']['domestic'] is None or \
-               totalLegalTragerNetBuySell['1d']['domestic'] == 0:
-                outputFile.write(',')
-            else:
-                outputFile.write('{0:.4f}'.format(totalLegalTragerNetBuySell['1d']['domestic'])+',')
-
-            """
-            # 5日自營商
-            if legalTrader.get(stockNo) is None or totalLegalTragerNetBuySell['5d']['dealer'] == 0:
-                outputFile.write(',')
-            else:
-                outputFile.write('{0:.4f}'.format(totalLegalTragerNetBuySell['5d']['dealer'])+',')
-            """
-
-            # 20日自營商
-            if legalTrader.get(stockNo) is None or totalLegalTragerNetBuySell['20d']['dealer'] == 0:
-                outputFile.write(',')
-            else:
-                outputFile.write('{0:.4f}'.format(totalLegalTragerNetBuySell['20d']['dealer'])+',')
-
-            # 近日自營商
-            if legalTrader.get(stockNo) is None or totalLegalTragerNetBuySell['1d']['dealer'] is None or \
-               totalLegalTragerNetBuySell['1d']['dealer'] == 0:
-                outputFile.write(',')
-            else:
-                outputFile.write('{0:.4f}'.format(totalLegalTragerNetBuySell['1d']['dealer'])+',')
+                if legalTragerNetBuySell['dealer']['5d'] == 0:
+                    outputFile.write(',')
+                else:
+                    outputFile.write('{0:.4f}'.format(legalTragerNetBuySell['dealer']['5d'])+',')
+                if legalTragerNetBuySell['dealer']['1d'] == 0:
+                    outputFile.write(',')
+                else:
+                    outputFile.write('{0:.4f}'.format(legalTragerNetBuySell['dealer']['1d'])+',')
 
             # 券資比
             if marginQuote.get(stockNo) is None or marginQuote[stockNo].marginShort['ratio'] is None:
