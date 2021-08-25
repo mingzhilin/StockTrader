@@ -218,7 +218,9 @@ def retriveAllStocks():
 
     # 輸出檔案
     #filePath = path + '/ComprehensiveReport(' + str(date.today()) + ').csv'
-    filePath = path + '/ComprehensiveReport(' + currTime1 + '-' + currTime2 + ').csv'
+    #filePath = path + '/ComprehensiveReport(' + currTime1 + '-' + currTime2 + ').csv'
+    filePath = path + '/ComprehensiveReport.csv'
+
     with open(filePath, 'w', encoding='UTF-16') as outputFile:
         outputFile.write('股票代號,')
         outputFile.write('股票名稱,')

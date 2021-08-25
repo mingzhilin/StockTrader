@@ -2,6 +2,7 @@ import os
 import sys
 import pickle
 import requests
+import shutil
 from datetime import date
 from datetime import datetime
 from lxml.html import fromstring
@@ -867,10 +868,12 @@ def calculateKD3(highPricesPerWeek, lowPricesPerWeek, closePricesPerWeek, weekCo
 
 def getFilePath():
     # 檢查輸出路徑
-    path = '../StockRealTimeReport'
+    #path = '../StockRealTimeReport'
+    path = '../ComprehensiveReport'
     if os.path.exists(path) is False:
         os.mkdir(path)
 
+    """
     now = date.today()
     year = now.year
     month = now.month
@@ -886,6 +889,10 @@ def getFilePath():
 
     # 輸出檔案
     filePath = path + '/StockRealTimeReport(' + currTime1 + '-' + currTime2 + ').csv'
+    """
+
+    # 輸出檔案
+    filePath = path + '/StockRealTimeReport.csv'
 
     return filePath
 
@@ -1167,6 +1174,7 @@ def SaveFile(filePath, quotes):
             outputFile.write(quotes[stockNo].currTime+',')
 
             outputFile.write('\n')
+
 
 
 def getFilePath2():
@@ -1529,10 +1537,12 @@ def SaveFile4(filePath, quotes):
 
 def GetFilePath5():
     # 檢查輸出路徑
-    path = '../StockRealTimeReport'
+    #path = '../StockRealTimeReport'
+    path = '../ComprehensiveReport'
     if os.path.exists(path) is False:
         os.mkdir(path)
 
+    """
     now = date.today()
     year = now.year
     month = now.month
@@ -1548,6 +1558,10 @@ def GetFilePath5():
 
     # 輸出檔案
     filePath = path + '/StockRealTimeReportMonthKD(' + currTime1 + '-' + currTime2 + ').csv'
+    """
+
+    # 輸出檔案
+    filePath = path + '/StockRealTimeReportMonthKD.csv'
 
     return filePath
 
@@ -1817,10 +1831,12 @@ def SaveFile5(filePath, quotes):
 
 def GetFilePath6():
     # 檢查輸出路徑
-    path = '../StockRealTimeReport'
+    #path = '../StockRealTimeReport'
+    path = '../ComprehensiveReport'
     if os.path.exists(path) is False:
         os.mkdir(path)
 
+    """
     now = date.today()
     year = now.year
     month = now.month
@@ -1836,6 +1852,10 @@ def GetFilePath6():
 
     # 輸出檔案
     filePath = path + '/StockRealTimeReportWeekKD(' + currTime1 + '-' + currTime2 + ').csv'
+    """
+
+    # 輸出檔案
+    filePath = path + '/StockRealTimeReportWeekKD.csv'
 
     return filePath
 
