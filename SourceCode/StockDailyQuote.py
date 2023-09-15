@@ -98,7 +98,7 @@ class DailyQuote():
             return False
 
         nodes1 = nodes[0].split(',')[0].split()
-        nodes2 = nodes[0].split(',')[1].split()
+        # nodes2 = nodes[0].split(',')[1].split()
 
         # 股票名稱
         self.stockName = nodes1[0][0:-12]
